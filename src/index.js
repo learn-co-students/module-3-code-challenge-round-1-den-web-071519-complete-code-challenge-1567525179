@@ -23,21 +23,41 @@ document.addEventListener('DOMContentLoaded', () => {
         likes.innerText = picture.like_count
 
         let $ul = document.querySelector("#comments")
-        let $li = document.createElement("li")
         
-        let comment = picture.comments[0].content
-        
-        $li.innerText = comment
-        $ul.append($li)
+        picture.comments.forEach(comment => {
+          let $li = document.createElement("li")
+          let $deleteButton = document.createElement("button")
+
+          $deleteButton.innerText = "Delete"
+          $deleteButton.id = comment.id
+
+          $deleteButton.onclick = function(){
+            $ul.removeChild($li)
+
+            fetch(commentsURL + `/${comment.id}`, {
+              method: "DELETE"
+            }).then(response => response.json())
+            .then(response => {
+              console.log(response)
+            })
+
+          }
+
+          $li.innerText = comment.content
+
+          $li.append($deleteButton)
+          $ul.append($li)
+
+        })
 
     }).catch(error => {
         console.log(error.message)
     })
 
-$button = document.querySelector("#like_button")
+let $button = document.querySelector("#like_button")
 $button.addEventListener("click", function(){
   let likes = document.querySelector("#likes").innerText
-  numLikes = parseInt(likes, 10)
+  let numLikes = parseInt(likes, 10)
   numLikes += 1
   document.querySelector("#likes").innerText = numLikes
 
@@ -57,7 +77,7 @@ $button.addEventListener("click", function(){
 })
 
 
-$form = document.querySelector("#comment_form")
+let $form = document.querySelector("#comment_form")
 $form.addEventListener("submit", event => {
   event.preventDefault()
 
@@ -66,12 +86,17 @@ $form.addEventListener("submit", event => {
 
   let $ul = document.querySelector("#comments")
   let $li = document.createElement("li")
+  let $deleteButton = document.createElement("button")
+
+  $deleteButton.innerText = "Delete"
   
   $li.innerText = comment
 
+  $li.append($deleteButton)
   $ul.append($li)
-  $form.reset()
 
+  $form.reset()
+  // debugger;
   fetch(commentsURL, {
     method: "POST",
     headers: {
